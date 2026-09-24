@@ -8,6 +8,5 @@ CREATE TABLE IF NOT EXISTS empleados (
     salario_mensual DECIMAL(10, 2) NOT NULL,
     fecha_contratacion DATE NOT NULL,
     activo BOOLEAN NOT NULL DEFAULT TRUE,
-    CONSTRAINT chk_salario CHECK (salario_mensual > 0),
-    CONSTRAINT chk_fecha CHECK (fecha_contratacion <= CURRENT_DATE)
+    CONSTRAINT chk_salario CHECK (salario_mensual > 0)
     );
