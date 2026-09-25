@@ -18,7 +18,7 @@ public class EmpleadoDAO {
 
     public List<Empleado> listarTodos() throws SQLException {
         List<Empleado> lista = new ArrayList<>();
-        String sql = "SELECT id, nombre_completo, departamento, salario_mensual, fecha_contratacion, activo FROM empleados ORDER BY id ASC";
+        String sql = "SELECT id, nombre_completo, departamento, salario_mensual, fecha_contratacion, activo, tipo_contrato FROM empleados ORDER BY id ASC";
 
         try (Connection con = ConexionBD.obtenerConexion();
              PreparedStatement ps = con.prepareStatement(sql);
@@ -31,8 +31,9 @@ public class EmpleadoDAO {
                 BigDecimal salario = rs.getBigDecimal("salario_mensual");
                 LocalDate fecha = rs.getDate("fecha_contratacion").toLocalDate();
                 boolean activo = rs.getBoolean("activo");
+                String tipoContrato = rs.getString("tipo_contrato"); // MEJORA #4
 
-                Empleado emp = new Empleado(id, nombre, depto, salario, fecha, activo);
+                Empleado emp = new Empleado(id, nombre, depto, salario, fecha, activo, tipoContrato);
                 lista.add(emp);
             }
         }
@@ -40,7 +41,7 @@ public class EmpleadoDAO {
     }
 
     public Empleado obtenerPorId(int id) throws SQLException {
-        String sql = "SELECT id, nombre_completo, departamento, salario_mensual, fecha_contratacion, activo FROM empleados WHERE id = ?";
+        String sql = "SELECT id, nombre_completo, departamento, salario_mensual, fecha_contratacion, activo, tipo_contrato FROM empleados WHERE id = ?";
         try (Connection con = ConexionBD.obtenerConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
@@ -52,8 +53,9 @@ public class EmpleadoDAO {
                     BigDecimal salario = rs.getBigDecimal("salario_mensual");
                     LocalDate fecha = rs.getDate("fecha_contratacion").toLocalDate();
                     boolean activo = rs.getBoolean("activo");
+                    String tipoContrato = rs.getString("tipo_contrato"); // MEJORA #4
 
-                    return new Empleado(id, nombre, depto, salario, fecha, activo);
+                    return new Empleado(id, nombre, depto, salario, fecha, activo, tipoContrato);
                 }
             }
         }
@@ -61,7 +63,7 @@ public class EmpleadoDAO {
     }
 
     public boolean insertar(Empleado empleado) throws SQLException {
-        String sql = "INSERT INTO empleados (nombre_completo, departamento, salario_mensual, fecha_contratacion, activo) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO empleados (nombre_completo, departamento, salario_mensual, fecha_contratacion, activo, tipo_contrato) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection con = ConexionBD.obtenerConexion();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -71,6 +73,7 @@ public class EmpleadoDAO {
             ps.setBigDecimal(3, empleado.getSalarioMensual());
             ps.setDate(4, Date.valueOf(empleado.getFechaContratacion()));
             ps.setBoolean(5, empleado.isActivo());
+            ps.setString(6, empleado.getTipoContrato()); // MEJORA #4
 
             int filasAfectadas = ps.executeUpdate();
             if (filasAfectadas > 0) {
@@ -86,7 +89,7 @@ public class EmpleadoDAO {
     }
 
     public boolean actualizar(Empleado empleado) throws SQLException {
-        String sql = "UPDATE empleados SET nombre_completo = ?, departamento = ?, salario_mensual = ?, fecha_contratacion = ?, activo = ? WHERE id = ?";
+        String sql = "UPDATE empleados SET nombre_completo = ?, departamento = ?, salario_mensual = ?, fecha_contratacion = ?, activo = ?, tipo_contrato = ? WHERE id = ?";
 
         try (Connection con = ConexionBD.obtenerConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -96,7 +99,8 @@ public class EmpleadoDAO {
             ps.setBigDecimal(3, empleado.getSalarioMensual());
             ps.setDate(4, Date.valueOf(empleado.getFechaContratacion()));
             ps.setBoolean(5, empleado.isActivo());
-            ps.setInt(6, empleado.getId());
+            ps.setString(6, empleado.getTipoContrato()); // MEJORA #4
+            ps.setInt(7, empleado.getId());
 
             return ps.executeUpdate() > 0;
         }
